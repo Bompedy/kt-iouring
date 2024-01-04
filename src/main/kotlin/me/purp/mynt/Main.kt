@@ -1,15 +1,10 @@
 package me.purp.mynt
 
-class Test {
-    external fun printHello()
-    companion object {
-        init {
-            System.loadLibrary("mynt-hooks")
-        }
-    }
-}
-
 fun main() {
-    val test = Test()
-    test.printHello()
+    val hooks = Hooks()
+    if (hooks.setupRing(16) < 0) {
+        println("Error setting up ring.")
+    }
+    val socket = hooks.connect("127.0.0.1", 8080)
+    if (socket < 0) println("cant connect")
 }
