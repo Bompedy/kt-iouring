@@ -8,10 +8,12 @@ version = "1.0.0"
 
 repositories {
     mavenCentral()
+    maven("https://jitpack.io")
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.0")
+    implementation("com.github.exerosis:mynt:1.0.12")
 }
 
 tasks.withType<JavaCompile> {
@@ -38,7 +40,7 @@ tasks.compileKotlin.get().kotlinOptions {
 
 tasks.shadowJar {
     archiveFileName.set("${project.name}.jar")
-    manifest.attributes["Main-Class"] = "me.purp.mynt.Main"
+    manifest.attributes["Main-Class"] = "com.github.mynt.MainKt"
 }
 
 tasks.build { dependsOn(tasks.shadowJar) }
