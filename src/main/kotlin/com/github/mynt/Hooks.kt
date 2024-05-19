@@ -5,6 +5,7 @@ import kotlinx.coroutines.*
 import sun.misc.Unsafe
 import java.net.InetSocketAddress
 import java.nio.channels.AsynchronousChannelGroup
+import java.nio.channels.ReadPendingException
 import java.nio.file.Paths
 import java.util.*
 import java.util.concurrent.Executors
@@ -164,7 +165,7 @@ fun Read(epoll: Int, connection: Connection, socket: Int, size: Int): Read {
         }
 
         override fun onRead(position: Long, next: Long) {
-            UNSAFE.loadFence()
+//            UNSAFE.loadFence()
             this.position = position
             continuation!!.resume(UNSAFE.getInt(current))
             current = next
@@ -176,13 +177,15 @@ fun Read(epoll: Int, connection: Connection, socket: Int, size: Int): Read {
             if (next < position) {
                 current = next
                 UNSAFE.getInt(current)
-            } else if (Hooks.read(epoll, connection, socket, current, next, end)) {
-                current = next
-                UNSAFE.getInt(current)
             } else {
                 continuation = it.intercepted()
-                UNSAFE.storeFence()
-                COROUTINE_SUSPENDED
+                if (Hooks.read(epoll, connection, socket, current, next, end)) {
+                    current = next
+                    continuation = null
+                    UNSAFE.getInt(current)
+                } else {
+                    COROUTINE_SUSPENDED
+                }
             }
         }
     }
